@@ -116,11 +116,10 @@ func (ah ArtifactHub) HandleDependents(comp Component, kc *kubernetes.Client, is
 
 	if source_uri != "" {
 		err = kc.ApplyHelmChart(kubernetes.ApplyHelmChartConfig{
-			URL:                    source_uri,
-			Namespace:              comp.Namespace,
-			CreateNamespace:        true,
-			Action:                 act,
-			SkipUpgradeIfInstalled: true,
+			URL:             source_uri,
+			Namespace:       comp.Namespace,
+			CreateNamespace: true,
+			Action:          act,
 		})
 		if err != nil {
 			if !isDeploy {

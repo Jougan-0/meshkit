@@ -41,6 +41,7 @@ func GetCrdsFromHelm(url string, pkgName string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	dec := yaml.NewDecoder(strings.NewReader(manifest))
 	var mans []string
 	for {
@@ -50,9 +51,19 @@ func GetCrdsFromHelm(url string, pkgName string) ([]string, error) {
 				break
 			}
 			errStr := err.Error()
-			//The first line is "yaml unmarshall error:".
+			// The first line is "yaml unmarshal error:".
 			errStr = strings.TrimPrefix(errStr, strings.SplitN(errStr, "\n", 2)[0]+"\n")
-			return nil, ErrUnmarshalSyntax(errStr, pkgName)
+
+			// Attempt to find the name of the CRD (if possible)
+			crdName := ""
+			if metadata, ok := parsedYaml["metadata"].(map[string]interface{}); ok {
+				if name, ok := metadata["name"].(string); ok {
+					crdName = name
+				}
+			}
+
+			// Return error with CRD name
+			return nil, ErrUnmarshalSyntax(errStr, pkgName, crdName)
 		}
 		b, err := json.Marshal(parsedYaml)
 		if err != nil {
@@ -63,7 +74,6 @@ func GetCrdsFromHelm(url string, pkgName string) ([]string, error) {
 
 	return removeNonCrdValues(mans), nil
 }
-
 func removeNonCrdValues(crds []string) []string {
 	out := make([]string, 0)
 	for _, crd := range crds {
