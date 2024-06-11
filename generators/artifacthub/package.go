@@ -14,9 +14,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const ArtifactHubAPIEndpint = "https://artifacthub.io/api/v1"
+const ArtifactHubAPIEndpoint = "https://artifacthub.io/api/v1"
 const ArtifactHubChartUrlFieldName = "content_url"
-const AhHelmExporterEndpoint = ArtifactHubAPIEndpint + "/helm-exporter"
+const AhHelmExporterEndpoint = ArtifactHubAPIEndpoint + "/helm-exporter"
 
 // internal representation of artifacthub package
 // it contains information we need to identify a package using ArtifactHub API
@@ -39,7 +39,7 @@ func (pkg AhPackage) GetVersion() string {
 func (pkg AhPackage) GenerateComponents() ([]v1beta1.ComponentDefinition, error) {
 	components := make([]v1beta1.ComponentDefinition, 0)
 	// TODO: Move this to the configuration
-	crds, err := manifests.GetCrdsFromHelm(pkg.ChartUrl)
+	crds, err := manifests.GetCrdsFromHelm(pkg.ChartUrl, pkg.Name)
 	if err != nil {
 		return components, ErrComponentGenerate(err)
 	}

@@ -1,6 +1,10 @@
 package manifests
 
-import "github.com/layer5io/meshkit/errors"
+import (
+	"fmt"
+
+	"github.com/layer5io/meshkit/errors"
+)
 
 const (
 	ErrGetCrdNamesCode           = "meshkit-11233"
@@ -11,6 +15,7 @@ const (
 	ErrAbsentFilterCode          = "meshkit-11238"
 	ErrCreatingDirectoryCode     = "meshkit-11239"
 	ErrGetResourceIdentifierCode = "meshkit-11240"
+	ErrYamlUnmarshalSyntaxCode   = "replace_me"
 )
 
 func ErrGetResourceIdentifier(err error) error {
@@ -20,7 +25,9 @@ func ErrGetResourceIdentifier(err error) error {
 func ErrGetCrdNames(err error) error {
 	return errors.New(ErrGetCrdNamesCode, errors.Alert, []string{"Error getting crd names"}, []string{err.Error()}, []string{"Could not execute kubeopenapi-jsonschema correctly"}, []string{"Make sure the binary is valid and correct", "Make sure the filter passed is correct"})
 }
-
+func ErrYamlUnmarshalSyntax(err string, packageName string) error {
+	return errors.New(ErrYamlUnmarshalSyntaxCode, errors.Alert, []string{"Unmarshal syntax error."}, []string{fmt.Sprintf("helm chart of %s has syntax error(s): \n%s", packageName, err)}, []string{"Invalid object format"}, []string{"Make sure to input a valid YAML object"})
+}
 func ErrGetSchemas(err error) error {
 	return errors.New(ErrGetSchemasCode, errors.Alert, []string{"Error getting schemas"}, []string{err.Error()}, []string{"Schemas Json could not be produced from given crd."}, []string{"Make sure the filter passed is correct"})
 }

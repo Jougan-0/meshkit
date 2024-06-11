@@ -36,7 +36,7 @@ func GetFromHelm(ctx context.Context, url string, resource int, cfg Config) (*Co
 	return comp, nil
 }
 
-func GetCrdsFromHelm(url string) ([]string, error) {
+func GetCrdsFromHelm(url string, pkgname string) ([]string, error) {
 	manifest, err := k8s.GetManifestsFromHelm(url)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,11 @@ func GetCrdsFromHelm(url string) ([]string, error) {
 			if err == io.EOF {
 				break
 			}
-			return nil, err
+			errStr := err.Error()
+			// Remove the first line of the error message which contains "yaml unmarshall error:"
+			// This line is redundant as it does not provide any extra information about the specific error.
+			errStr = strings.TrimPrefix(errStr, strings.SplitN(errStr, "\n", 2)[0]+"\n")
+			return nil, ErrYamlUnmarshalSyntax(errStr, pkgname)
 		}
 		b, err := json.Marshal(parsedYaml)
 		if err != nil {
